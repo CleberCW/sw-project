@@ -6,7 +6,16 @@ from typing import List
 from dotenv import load_dotenv
 load_dotenv()
 
+
+from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Simulação de armazenamento em memória
 wardrobe_db = []
@@ -44,7 +53,7 @@ async def suggest_look(event: str = Form(...), location: str = Form(...)):
     climate = 'frio' if 'noite' in event else 'quente'
     # Simula sugestão de look
     if not wardrobe_db:
-        return JSONResponse({'error': 'Nenhuma peça cadastrada'}, status_code=400)
+        return JSONResponse({'error': 'Nenhuma peça cadastrada. Por favor, envie uma foto para cadastrar sua primeira peça.'}, status_code=400)
     look = wardrobe_db[:2] if len(wardrobe_db) >= 2 else wardrobe_db
     suggestion = f"Para {event} com clima {climate}, sugerimos: " + ', '.join([p['description'] for p in look])
     return {'suggestion': suggestion, 'pieces': look}
